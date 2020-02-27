@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"strconv"
 	"strings"
 
 	"github.com/coredns/coredns/plugin"
@@ -517,7 +518,7 @@ func (k *Kubernetes) findServices(r recordRequest, zone string) (services []msg.
 			if !(match(r.port, p.Name) && match(r.protocol, string(p.Protocol))) {
 				continue
 			}
-			log.Infof("Length of svc.ExternalIPs : " + string(len(svc.ExternalIPs)))
+			log.Infof("Length of svc.ExternalIPs : " + strconv.Itoa(len(svc.ExternalIPs)))
 			log.Infof("svc.ExternalIPs[0] : " + string(svc.ExternalIPs[0]))
 
 			err = nil
