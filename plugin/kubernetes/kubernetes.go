@@ -424,6 +424,7 @@ func (k *Kubernetes) findServices(r recordRequest, zone string) (services []msg.
 		idx := object.ServiceKey(r.service, r.namespace)
 		log.Infof("idx : " + idx)
 		serviceList = k.APIConn.SvcIndex(idx)
+		log.Infof("serviceList length : " + string(len(serviceList)))
 		endpointsListFunc = func() []*object.Endpoints { return k.APIConn.EpIndex(idx) }
 	}
 
@@ -516,6 +517,7 @@ func (k *Kubernetes) findServices(r recordRequest, zone string) (services []msg.
 			if !(match(r.port, p.Name) && match(r.protocol, string(p.Protocol))) {
 				continue
 			}
+			log.Infof("Length of svc.ExternalIPs : " + string(len(svc.ExternalIPs)))
 
 			err = nil
 
