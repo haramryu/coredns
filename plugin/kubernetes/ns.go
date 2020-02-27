@@ -16,6 +16,7 @@ func isDefaultNS(name, zone string) bool {
 // nsAddrs returns the A or AAAA records for the CoreDNS service in the cluster. If the service cannot be found,
 // it returns a record for the local address of the machine we're running on.
 func (k *Kubernetes) nsAddrs(external bool, zone string) []dns.RR {
+	log.Infof("func nsAddrs")
 	var (
 		svcNames []string
 		svcIPs   []net.IP
@@ -23,15 +24,21 @@ func (k *Kubernetes) nsAddrs(external bool, zone string) []dns.RR {
 
 	// Find the CoreDNS Endpoints
 	for _, localIP := range k.localIPs {
+		log.Infof("localIP : " + localIP.String())
 		endpoints := k.APIConn.EpIndexReverse(localIP.String())
 
 		// Collect IPs for all Services of the Endpoints
 		for _, endpoint := range endpoints {
+			log.Infof("endpoint.Name : " + endpoint.Name)
+			log.Infof("endpoint.Namespace : " + endpoint.Namespace)
 			svcs := k.APIConn.SvcIndex(object.ServiceKey(endpoint.Name, endpoint.Namespace))
 			for _, svc := range svcs {
+				log.Infof("svc.Name : " + svc.Name)
+				log.Infof("svc.Namespace : " + svc.Namespace)
 				if external {
 					svcName := strings.Join([]string{svc.Name, svc.Namespace, zone}, ".")
 					for _, exIP := range svc.ExternalIPs {
+						log.Infof("exIP : " + exIP)
 						svcNames = append(svcNames, svcName)
 						svcIPs = append(svcIPs, net.ParseIP(exIP))
 					}
@@ -47,6 +54,9 @@ func (k *Kubernetes) nsAddrs(external bool, zone string) []dns.RR {
 						}
 					}
 				} else {
+					log.Infof("Maybe this is clusterIP")
+					log.Infof("Cluster IP svcName : " + svcName)
+					log.Infof("Cluster IP svc.ClusterIP : " + svc.ClusterIP)
 					svcNames = append(svcNames, svcName)
 					svcIPs = append(svcIPs, net.ParseIP(svc.ClusterIP))
 				}

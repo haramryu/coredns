@@ -128,11 +128,15 @@ func (k *Kubernetes) Services(ctx context.Context, state request.Request, exact 
 	log.Infof("state.Name() : " + state.Name())
 	log.Infof("state.Zone : " + state.Zone)
 	if isDefaultNS(state.Name(), state.Zone) {
+		log.Infof("isDefaultNS true")
 		nss := k.nsAddrs(false, state.Zone)
 		var svcs []msg.Service
 		for _, ns := range nss {
 			if ns.Header().Rrtype == dns.TypeA && state.QType() == dns.TypeA {
 				svcs = append(svcs, msg.Service{Host: ns.(*dns.A).A.String(), Key: msg.Path(state.QName(), coredns), TTL: k.ttl})
+				log.Infof("ns.(*dns.A).A.String() : " + ns.(*dns.A).A.String())
+				log.Infof("msg.Path(state.QName(), coredns) : " + msg.Path(state.QName(), coredns))
+				log.Infof("k.ttl : " + string(k.ttl))
 				continue
 			}
 			if ns.Header().Rrtype == dns.TypeAAAA && state.QType() == dns.TypeAAAA {
