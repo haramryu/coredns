@@ -416,9 +416,11 @@ func (k *Kubernetes) findServices(r recordRequest, zone string) (services []msg.
 	)
 
 	if wildcard(r.service) || wildcard(r.namespace) {
+		log.Infof("wildcard(r.service) || wildcard(r.namespace) true")
 		serviceList = k.APIConn.ServiceList()
 		endpointsListFunc = func() []*object.Endpoints { return k.APIConn.EndpointsList() }
 	} else {
+		log.Infof("wildcard(r.service) || wildcard(r.namespace) false")
 		idx := object.ServiceKey(r.service, r.namespace)
 		serviceList = k.APIConn.SvcIndex(idx)
 		endpointsListFunc = func() []*object.Endpoints { return k.APIConn.EpIndex(idx) }
