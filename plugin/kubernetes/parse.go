@@ -25,6 +25,7 @@ type recordRequest struct {
 // that is not parsed will have the wildcard "*" value (except r.endpoint).
 // Potential underscores are stripped from _port and _protocol.
 func parseRequest(name, zone string) (r recordRequest, err error) {
+	log.Infof("func parseRequest")
 	// 3 Possible cases:
 	// 1. _port._protocol.service.namespace.pod|svc.zone
 	// 2. (endpoint): endpoint.service.namespace.pod|svc.zone
@@ -33,6 +34,7 @@ func parseRequest(name, zone string) (r recordRequest, err error) {
 	// Federations are handled in the federation plugin. And aren't parsed here.
 
 	base, _ := dnsutil.TrimZone(name, zone)
+	log.Infof("base : " + base)
 	// return NODATA for apex queries
 	if base == "" || base == Svc || base == Pod {
 		return r, nil
@@ -56,6 +58,7 @@ func parseRequest(name, zone string) (r recordRequest, err error) {
 		return r, nil
 	}
 	r.podOrSvc = segs[last]
+	log.Infof("r.podOrSvc : " + segs[last])
 	if r.podOrSvc != Pod && r.podOrSvc != Svc {
 		return r, errInvalidRequest
 	}
@@ -65,12 +68,14 @@ func parseRequest(name, zone string) (r recordRequest, err error) {
 	}
 
 	r.namespace = segs[last]
+	log.Infof("r.namespace : " + segs[last])
 	last--
 	if last < 0 {
 		return r, nil
 	}
 
 	r.service = segs[last]
+	log.Infof("r.service : " + segs[last])
 	last--
 	if last < 0 {
 		return r, nil
@@ -82,9 +87,12 @@ func parseRequest(name, zone string) (r recordRequest, err error) {
 
 	case 0: // endpoint only
 		r.endpoint = segs[last]
+		log.Infof("r.endpoint : " + segs[last])
 	case 1: // service and port
 		r.protocol = stripUnderscore(segs[last])
 		r.port = stripUnderscore(segs[last-1])
+		log.Infof("r.protocol : " + stripUnderscore(segs[last]))
+		log.Infof("r.port : " + stripUnderscore(segs[last-1]))
 
 	default: // too long
 		return r, errInvalidRequest
