@@ -518,6 +518,7 @@ func (k *Kubernetes) findServices(r recordRequest, zone string) (services []msg.
 				continue
 			}
 			log.Infof("Length of svc.ExternalIPs : " + string(len(svc.ExternalIPs)))
+			log.Infof("svc.ExternalIPs[0] : " + string(svc.ExternalIPs[0]))
 
 			err = nil
 
