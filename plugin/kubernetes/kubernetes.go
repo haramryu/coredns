@@ -94,8 +94,6 @@ func (k *Kubernetes) Services(ctx context.Context, state request.Request, exact 
 	case dns.TypeTXT:
 		log.Infof("dns.TypeTXT")
 		// 1 label + zone, label must be "dns-version".
-		log.Infof("state.Name() : " + state.Name())
-		log.Infof("state.Zone : " + state.Zone)
 		t, _ := dnsutil.TrimZone(state.Name(), state.Zone)
 		log.Infof("t : " + t)
 
@@ -127,6 +125,8 @@ func (k *Kubernetes) Services(ctx context.Context, state request.Request, exact 
 		return svcs, nil
 	}
 
+	log.Infof("state.Name() : " + state.Name())
+	log.Infof("state.Zone : " + state.Zone)
 	if isDefaultNS(state.Name(), state.Zone) {
 		nss := k.nsAddrs(false, state.Zone)
 		var svcs []msg.Service
