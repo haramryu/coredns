@@ -88,11 +88,16 @@ var (
 func (k *Kubernetes) Services(ctx context.Context, state request.Request, exact bool, opt plugin.Options) (svcs []msg.Service, err error) {
 	log.Infof("func Services")
 	// We're looking again at types, which we've already done in ServeDNS, but there are some types k8s just can't answer.
+	log.Infof("state.QType() : " + string(state.QType()))
 	switch state.QType() {
 
 	case dns.TypeTXT:
+		log.Infof("dns.TypeTXT")
 		// 1 label + zone, label must be "dns-version".
+		log.Infof("state.Name() : " + state.Name())
+		log.Infof("state.Zone : " + state.Zone)
 		t, _ := dnsutil.TrimZone(state.Name(), state.Zone)
+		log.Infof("t : " + t)
 
 		segs := dns.SplitDomainName(t)
 		if len(segs) != 1 {
@@ -105,7 +110,9 @@ func (k *Kubernetes) Services(ctx context.Context, state request.Request, exact 
 		return []msg.Service{svc}, nil
 
 	case dns.TypeNS:
+		log.Infof("dns.TypeNS")
 		// We can only get here if the qname equals the zone, see ServeDNS in handler.go.
+		log.Infof("state.Zone : " + state.Zone)
 		nss := k.nsAddrs(false, state.Zone)
 		var svcs []msg.Service
 		for _, ns := range nss {
