@@ -86,6 +86,7 @@ var (
 
 // Services implements the ServiceBackend interface.
 func (k *Kubernetes) Services(ctx context.Context, state request.Request, exact bool, opt plugin.Options) (svcs []msg.Service, err error) {
+	log.Infof("func Services")
 	// We're looking again at types, which we've already done in ServeDNS, but there are some types k8s just can't answer.
 	switch state.QType() {
 
@@ -153,19 +154,25 @@ func (k *Kubernetes) Services(ctx context.Context, state request.Request, exact 
 }
 
 // primaryZone will return the first non-reverse zone being handled by this plugin
-func (k *Kubernetes) primaryZone() string { return k.Zones[k.primaryZoneIndex] }
+func (k *Kubernetes) primaryZone() string {
+	log.Infof("func primaryZone")
+	return k.Zones[k.primaryZoneIndex]
+}
 
 // Lookup implements the ServiceBackend interface.
 func (k *Kubernetes) Lookup(ctx context.Context, state request.Request, name string, typ uint16) (*dns.Msg, error) {
+	log.Infof("func Lookup")
 	return k.Upstream.Lookup(ctx, state, name, typ)
 }
 
 // IsNameError implements the ServiceBackend interface.
 func (k *Kubernetes) IsNameError(err error) bool {
+	log.Infof("func IsNameError")
 	return err == errNoItems || err == errNsNotExposed || err == errInvalidRequest
 }
 
 func (k *Kubernetes) getClientConfig() (*rest.Config, error) {
+	log.Infof("func getClientConfig")
 	if k.ClientConfig != nil {
 		return k.ClientConfig.ClientConfig()
 	}
@@ -213,6 +220,7 @@ func (k *Kubernetes) getClientConfig() (*rest.Config, error) {
 
 // InitKubeCache initializes a new Kubernetes cache.
 func (k *Kubernetes) InitKubeCache() (err error) {
+	log.Infof("func InitKubeCache")
 	config, err := k.getClientConfig()
 	if err != nil {
 		return err
@@ -252,6 +260,7 @@ func (k *Kubernetes) InitKubeCache() (err error) {
 
 // Records looks up services in kubernetes.
 func (k *Kubernetes) Records(ctx context.Context, state request.Request, exact bool) ([]msg.Service, error) {
+	log.Infof("func Records")
 	r, e := parseRequest(state.Name(), state.Zone)
 	if e != nil {
 		return nil, e
@@ -278,6 +287,7 @@ func (k *Kubernetes) Records(ctx context.Context, state request.Request, exact b
 }
 
 func endpointHostname(addr object.EndpointAddress, endpointNameMode bool) string {
+	log.Infof("func endpointHostname")
 	if addr.Hostname != "" {
 		return addr.Hostname
 	}
@@ -294,6 +304,7 @@ func endpointHostname(addr object.EndpointAddress, endpointNameMode bool) string
 }
 
 func (k *Kubernetes) findPods(r recordRequest, zone string) (pods []msg.Service, err error) {
+	log.Infof("func findPods")
 	if k.podMode == podModeDisabled {
 		return nil, errNoItems
 	}
@@ -364,6 +375,7 @@ func (k *Kubernetes) findPods(r recordRequest, zone string) (pods []msg.Service,
 
 // findServices returns the services matching r from the cache.
 func (k *Kubernetes) findServices(r recordRequest, zone string) (services []msg.Service, err error) {
+	log.Infof("func findServices")
 	if !wildcard(r.namespace) && !k.namespaceExposed(r.namespace) {
 		return nil, errNoItems
 	}
@@ -497,6 +509,7 @@ func (k *Kubernetes) findServices(r recordRequest, zone string) (services []msg.
 
 // match checks if a and b are equal taking wildcards into account.
 func match(a, b string) bool {
+	log.Infof("func match")
 	if wildcard(a) {
 		return true
 	}
@@ -508,6 +521,7 @@ func match(a, b string) bool {
 
 // wildcard checks whether s contains a wildcard value defined as "*" or "any".
 func wildcard(s string) bool {
+	log.Infof("func wildcard")
 	return s == "*" || s == "any"
 }
 
