@@ -422,12 +422,16 @@ func (k *Kubernetes) findServices(r recordRequest, zone string) (services []msg.
 	} else {
 		log.Infof("wildcard(r.service) || wildcard(r.namespace) false")
 		idx := object.ServiceKey(r.service, r.namespace)
+		log.Infof("idx : " + idx)
 		serviceList = k.APIConn.SvcIndex(idx)
 		endpointsListFunc = func() []*object.Endpoints { return k.APIConn.EpIndex(idx) }
 	}
 
 	zonePath := msg.Path(zone, coredns)
+	log.Infof("zonePath : " + zonePath)
 	for _, svc := range serviceList {
+		log.Infof("svc.Namespace : " + svc.Namespace)
+		log.Infof("svc.Name : " + svc.Name)
 		if !(match(r.namespace, svc.Namespace) && match(r.service, svc.Name)) {
 			continue
 		}
@@ -441,6 +445,7 @@ func (k *Kubernetes) findServices(r recordRequest, zone string) (services []msg.
 		// If "ignore empty_service" option is set and no endpoints exist, return NXDOMAIN unless
 		// it's a headless or externalName service (covered below).
 		if k.opts.ignoreEmptyService && svc.ClusterIP != api.ClusterIPNone && svc.Type != api.ServiceTypeExternalName {
+			log.Infof("it's a headless or externalName service")
 			// serve NXDOMAIN if no endpoint is able to answer
 			podsCount := 0
 			for _, ep := range endpointsListFunc() {
@@ -456,6 +461,7 @@ func (k *Kubernetes) findServices(r recordRequest, zone string) (services []msg.
 
 		// Endpoint query or headless service
 		if svc.ClusterIP == api.ClusterIPNone || r.endpoint != "" {
+			log.Infof("Endpoint query or headless service")
 			if endpointsList == nil {
 				endpointsList = endpointsListFunc()
 			}
@@ -493,6 +499,7 @@ func (k *Kubernetes) findServices(r recordRequest, zone string) (services []msg.
 
 		// External service
 		if svc.Type == api.ServiceTypeExternalName {
+			log.Infof("External service")
 			s := msg.Service{Key: strings.Join([]string{zonePath, Svc, svc.Namespace, svc.Name}, "/"), Host: svc.ExternalName, TTL: k.ttl}
 			if t, _ := s.HostType(); t == dns.TypeCNAME {
 				s.Key = strings.Join([]string{zonePath, Svc, svc.Namespace, svc.Name}, "/")
@@ -505,6 +512,7 @@ func (k *Kubernetes) findServices(r recordRequest, zone string) (services []msg.
 
 		// ClusterIP service
 		for _, p := range svc.Ports {
+			log.Infof("ClusterIP service")
 			if !(match(r.port, p.Name) && match(r.protocol, string(p.Protocol))) {
 				continue
 			}
