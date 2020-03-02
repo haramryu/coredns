@@ -13,7 +13,10 @@ import (
 	"github.com/coredns/coredns/core/dnsserver"
 
 	"github.com/caddyserver/caddy"
+	clog "github.com/coredns/coredns/plugin/pkg/log"
 )
+
+var customLog = clog.NewWithPlugin("kubernetes")
 
 func init() {
 	caddy.DefaultConfigFile = "Corefile"
@@ -35,6 +38,7 @@ func init() {
 
 // Run is CoreDNS's main() function.
 func Run() {
+	customLog.Infof("Is this main run func?")
 	caddy.TrapSignals()
 
 	// Reset flag.CommandLine to get rid of unwanted flags for instance from glog (used in kubernetes).
@@ -141,6 +145,7 @@ func defaultLoader(serverType string) (caddy.Input, error) {
 
 // showVersion prints the version that is starting.
 func showVersion() {
+	customLog.Infof("showVerison here?")
 	fmt.Print(versionString())
 	fmt.Print(releaseString())
 	if devBuild && gitShortStat != "" {
