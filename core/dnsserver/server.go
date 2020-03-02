@@ -50,7 +50,7 @@ type Server struct {
 // queries are blocked unless queries from enableChaos are loaded.
 func NewServer(addr string, group []*Config) (*Server, error) {
 
-	customLog.Infof("Is Here?")
+	customLog.Infof("Is Here? : server.NewServer")
 	s := &Server{
 		Addr:         addr,
 		zones:        make(map[string]*Config),
