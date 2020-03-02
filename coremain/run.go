@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"runtime"
+	"strconv"
 	"strings"
 
 	"github.com/coredns/coredns/core/dnsserver"
@@ -68,26 +69,36 @@ func Run() {
 		showVersion()
 		os.Exit(0)
 	}
+	customLog.Infof("plugin : " + string(strconv.FormatBool(plugins)))
 	if plugins {
 		fmt.Println(caddy.DescribePlugins())
 		os.Exit(0)
 	}
+	customLog.Infof("Describe plugin over")
 
 	// Get Corefile input
+
+	customLog.Infof("LoadCaddyfile start")
 	corefile, err := caddy.LoadCaddyfile(serverType)
 	if err != nil {
 		mustLogFatal(err)
 	}
+	customLog.Infof("LoadCaddyfile end")
 
 	// Start your engines
+
+	customLog.Infof("caddy.Start start")
 	instance, err := caddy.Start(corefile)
 	if err != nil {
 		mustLogFatal(err)
 	}
+	customLog.Infof("caddy.Start end")
 
+	customLog.Infof("dnsServer.Quiet start")
 	if !dnsserver.Quiet {
 		showVersion()
 	}
+	customLog.Infof("dnsServer.Quiet end")
 
 	// Twiddle your thumbs
 	instance.Wait()
@@ -151,6 +162,7 @@ func showVersion() {
 	if devBuild && gitShortStat != "" {
 		fmt.Printf("%s\n%s\n", gitShortStat, gitFilesModified)
 	}
+	customLog.Infof("showVersion end over")
 }
 
 // versionString returns the CoreDNS version as a string.
