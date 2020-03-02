@@ -20,9 +20,12 @@ import (
 	"github.com/coredns/coredns/plugin/pkg/transport"
 	"github.com/coredns/coredns/request"
 
+	clog "github.com/coredns/coredns/plugin/pkg/log"
 	"github.com/miekg/dns"
 	ot "github.com/opentracing/opentracing-go"
 )
+
+var customLog = clog.NewWithPlugin("kubernetes")
 
 // Server represents an instance of a server, which serves
 // DNS requests at a particular address (host and port). A
@@ -47,6 +50,7 @@ type Server struct {
 // queries are blocked unless queries from enableChaos are loaded.
 func NewServer(addr string, group []*Config) (*Server, error) {
 
+	customLog.Infof("Is Here?")
 	s := &Server{
 		Addr:         addr,
 		zones:        make(map[string]*Config),
