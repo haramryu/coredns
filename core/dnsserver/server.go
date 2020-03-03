@@ -306,6 +306,10 @@ func (s *Server) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 		return
 	}
 
+	if r.Question[0].Qtype == dns.TypeA {
+		customLog.Infof("r.Question[0].Qtype ==  dns.TypeA TRUE")
+	}
+
 	customLog.Infof("Still here??")
 	// Still here? Error out with REFUSED.
 	errorAndMetricsFunc(s.Addr, w, r, dns.RcodeRefused)
