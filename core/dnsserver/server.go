@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net"
 	"runtime"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -243,6 +244,7 @@ func (s *Server) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 
 	q := strings.ToLower(r.Question[0].Name)
 	customLog.Infof("what is q? : " + q)
+	customLog.Infof("r.Question[0].Qtype ? : " + strconv.Itoa(int(r.Question[0].Qtype)))
 	var (
 		off       int
 		end       bool
