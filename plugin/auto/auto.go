@@ -12,8 +12,11 @@ import (
 	"github.com/coredns/coredns/plugin/pkg/upstream"
 	"github.com/coredns/coredns/request"
 
+	clog "github.com/coredns/coredns/plugin/pkg/log"
 	"github.com/miekg/dns"
 )
+
+var customLog = clog.NewWithPlugin("auto")
 
 type (
 	// Auto holds the zones and the loader configuration for automatically loading zones.
@@ -39,6 +42,7 @@ type (
 
 // ServeDNS implements the plugin.Handler interface.
 func (a Auto) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) (int, error) {
+	customLog.Infof("auto plugin func ServeDNS")
 	state := request.Request{W: w, Req: r}
 	qname := state.Name()
 
