@@ -21,6 +21,7 @@ var log = clog.NewWithPlugin("auto")
 func init() { plugin.Register("auto", setup) }
 
 func setup(c *caddy.Controller) error {
+	log.Infof("auto plugin setup func")
 	a, err := autoParse(c)
 	if err != nil {
 		return plugin.Error("auto", err)
@@ -71,6 +72,7 @@ func setup(c *caddy.Controller) error {
 }
 
 func autoParse(c *caddy.Controller) (Auto, error) {
+	log.Infof("auto plugin autoParse")
 	nilInterval := -1 * time.Second
 	var a = Auto{
 		loader: loader{

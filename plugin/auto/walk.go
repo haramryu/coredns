@@ -12,6 +12,7 @@ import (
 
 // Walk will recursively walk of the file under l.directory and adds the one that match l.re.
 func (a Auto) Walk() error {
+	log.Infof("auto plugin Walk func")
 
 	// TODO(miek): should add something so that we don't stomp on each other.
 
@@ -90,6 +91,7 @@ func (a Auto) Walk() error {
 // matches re to filename, if it is a match, the subexpression will be used to expand
 // template to an origin. When match is true that origin is returned. Origin is fully qualified.
 func matches(re *regexp.Regexp, filename, template string) (match bool, origin string) {
+	log.Infof("auto plugin matches func")
 	base := filepath.Base(filename)
 
 	matches := re.FindStringSubmatchIndex(base)
