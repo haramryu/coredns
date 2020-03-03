@@ -242,6 +242,7 @@ func (s *Server) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 	w = request.NewScrubWriter(r, w)
 
 	q := strings.ToLower(r.Question[0].Name)
+	customLog.Infof("what is q? : " + q)
 	var (
 		off       int
 		end       bool
