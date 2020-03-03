@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strconv"
 
 	"github.com/coredns/coredns/plugin/file"
 
@@ -93,11 +94,13 @@ func (a Auto) Walk() error {
 func matches(re *regexp.Regexp, filename, template string) (match bool, origin string) {
 	log.Infof("auto plugin matches func")
 	base := filepath.Base(filename)
-
+	log.Infof("match func base : " + base)
 	matches := re.FindStringSubmatchIndex(base)
 	if matches == nil {
 		return false, ""
 	}
+	log.Infof("match func matches : " + strconv.Itoa(matches[0]))
+	log.Infof("match func template : " + template)
 
 	by := re.ExpandString(nil, template, base, matches)
 	if by == nil {
@@ -105,6 +108,7 @@ func matches(re *regexp.Regexp, filename, template string) (match bool, origin s
 	}
 
 	origin = dns.Fqdn(string(by))
+	log.Infof("match func origin : " + origin)
 
 	return true, origin
 }
