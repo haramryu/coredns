@@ -38,6 +38,7 @@ func init() {
 }
 
 func newContext(i *caddy.Instance) caddy.Context {
+	customLog.Infof("func newContext")
 	return &dnsContext{keysToConfigs: make(map[string]*Config)}
 }
 
@@ -49,6 +50,7 @@ type dnsContext struct {
 }
 
 func (h *dnsContext) saveConfig(key string, cfg *Config) {
+	customLog.Infof("func saveConfig")
 	h.configs = append(h.configs, cfg)
 	h.keysToConfigs[key] = cfg
 }
@@ -57,6 +59,7 @@ func (h *dnsContext) saveConfig(key string, cfg *Config) {
 // executing directives and otherwise prepares the directives to
 // be parsed and executed.
 func (h *dnsContext) InspectServerBlocks(sourceFile string, serverBlocks []caddyfile.ServerBlock) ([]caddyfile.ServerBlock, error) {
+	customLog.Infof("func InspectServerBlocks")
 	// Normalize and check all the zone names and check for duplicates
 	for ib, s := range serverBlocks {
 		for ik, k := range s.Keys {
@@ -97,7 +100,7 @@ func (h *dnsContext) InspectServerBlocks(sourceFile string, serverBlocks []caddy
 
 // MakeServers uses the newly-created siteConfigs to create and return a list of server instances.
 func (h *dnsContext) MakeServers() ([]caddy.Server, error) {
-
+	customLog.Infof("func MakeServers")
 	// Now that all Keys and Directives are parsed and initialized
 	// lets verify that there is no overlap on the zones and addresses to listen for
 	errValid := h.validateZonesAndListeningAddresses()
@@ -151,12 +154,14 @@ func (h *dnsContext) MakeServers() ([]caddy.Server, error) {
 
 // AddPlugin adds a plugin to a site's plugin stack.
 func (c *Config) AddPlugin(m plugin.Plugin) {
+	customLog.Infof("func AddPlugin")
 	c.Plugin = append(c.Plugin, m)
 }
 
 // registerHandler adds a handler to a site's handler registration. Handlers
 //  use this to announce that they exist to other plugin.
 func (c *Config) registerHandler(h plugin.Handler) {
+	customLog.Infof("func registerHandler")
 	if c.registry == nil {
 		c.registry = make(map[string]plugin.Handler)
 	}
@@ -170,6 +175,7 @@ func (c *Config) registerHandler(h plugin.Handler) {
 // Note that this is order dependent and the order is defined in directives.go, i.e. if your plugin
 // comes before the plugin you are checking; it will not be there (yet).
 func (c *Config) Handler(name string) plugin.Handler {
+	customLog.Infof("func Handler")
 	if c.registry == nil {
 		return nil
 	}
@@ -184,6 +190,7 @@ func (c *Config) Handler(name string) plugin.Handler {
 // Note that this is order dependent and the order is defined in directives.go, i.e. if your plugin
 // comes before the plugin you are checking; it will not be there (yet).
 func (c *Config) Handlers() []plugin.Handler {
+	customLog.Infof("Handlers")
 	if c.registry == nil {
 		return nil
 	}
@@ -195,6 +202,7 @@ func (c *Config) Handlers() []plugin.Handler {
 }
 
 func (h *dnsContext) validateZonesAndListeningAddresses() error {
+	customLog.Infof("func validateZonesAndListeningAddresses")
 	//Validate Zone and addresses
 	checker := newOverlapZone()
 	for _, conf := range h.configs {
@@ -221,7 +229,7 @@ func (h *dnsContext) validateZonesAndListeningAddresses() error {
 // address (what you pass into net.Listen) to the list of site configs.
 // This function does NOT vet the configs to ensure they are compatible.
 func groupConfigsByListenAddr(configs []*Config) (map[string][]*Config, error) {
-
+	customLog.Infof("func groupConfigsByListenAddr")
 	groups := make(map[string][]*Config)
 	for _, conf := range configs {
 		for _, h := range conf.ListenHosts {

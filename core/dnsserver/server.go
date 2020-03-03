@@ -106,6 +106,7 @@ func NewServer(addr string, group []*Config) (*Server, error) {
 // Serve starts the server with an existing listener. It blocks until the server stops.
 // This implements caddy.TCPServer interface.
 func (s *Server) Serve(l net.Listener) error {
+	customLog.Infof("func Serve")
 	s.m.Lock()
 	s.server[tcp] = &dns.Server{Listener: l, Net: "tcp", Handler: dns.HandlerFunc(func(w dns.ResponseWriter, r *dns.Msg) {
 		ctx := context.WithValue(context.Background(), Key{}, s)
@@ -119,6 +120,7 @@ func (s *Server) Serve(l net.Listener) error {
 // ServePacket starts the server with an existing packetconn. It blocks until the server stops.
 // This implements caddy.UDPServer interface.
 func (s *Server) ServePacket(p net.PacketConn) error {
+	customLog.Infof("ServerPacket")
 	s.m.Lock()
 	s.server[udp] = &dns.Server{PacketConn: p, Net: "udp", Handler: dns.HandlerFunc(func(w dns.ResponseWriter, r *dns.Msg) {
 		ctx := context.WithValue(context.Background(), Key{}, s)
@@ -131,6 +133,7 @@ func (s *Server) ServePacket(p net.PacketConn) error {
 
 // Listen implements caddy.TCPServer interface.
 func (s *Server) Listen() (net.Listener, error) {
+	customLog.Infof("func Listen")
 	l, err := reuseport.Listen("tcp", s.Addr[len(transport.DNS+"://"):])
 	if err != nil {
 		return nil, err
@@ -140,11 +143,13 @@ func (s *Server) Listen() (net.Listener, error) {
 
 // WrapListener Listen implements caddy.GracefulServer interface.
 func (s *Server) WrapListener(ln net.Listener) net.Listener {
+	customLog.Infof("WrapListener")
 	return ln
 }
 
 // ListenPacket implements caddy.UDPServer interface.
 func (s *Server) ListenPacket() (net.PacketConn, error) {
+	customLog.Infof("func ListenPacket")
 	p, err := reuseport.ListenPacket("udp", s.Addr[len(transport.DNS+"://"):])
 	if err != nil {
 		return nil, err
@@ -160,7 +165,7 @@ func (s *Server) ListenPacket() (net.PacketConn, error) {
 // immediately.
 // This implements Caddy.Stopper interface.
 func (s *Server) Stop() (err error) {
-
+	customLog.Infof("func Stop")
 	if runtime.GOOS != "windows" {
 		// force connections to close after timeout
 		done := make(chan struct{})
@@ -198,6 +203,7 @@ func (s *Server) Address() string { return s.Addr }
 // defined in the request so that the correct zone
 // (configuration and plugin stack) will handle the request.
 func (s *Server) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg) {
+	customLog.Infof("func ServeDNS")
 	// The default dns.Mux checks the question section size, but we have our
 	// own mux here. Check if we have a question section. If not drop them here.
 	if r == nil || len(r.Question) == 0 {
@@ -295,6 +301,7 @@ func (s *Server) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 // OnStartupComplete lists the sites served by this server
 // and any relevant information, assuming Quiet is false.
 func (s *Server) OnStartupComplete() {
+	customLog.Infof("func OnStartupComplete")
 	if Quiet {
 		return
 	}
@@ -307,6 +314,7 @@ func (s *Server) OnStartupComplete() {
 
 // Tracer returns the tracer in the server if defined.
 func (s *Server) Tracer() ot.Tracer {
+	customLog.Infof("func Tracer")
 	if s.trace == nil {
 		return nil
 	}
@@ -316,6 +324,7 @@ func (s *Server) Tracer() ot.Tracer {
 
 // errorFunc responds to an DNS request with an error.
 func errorFunc(server string, w dns.ResponseWriter, r *dns.Msg, rc int) {
+	customLog.Infof("func errorFunc")
 	state := request.Request{W: w, Req: r}
 
 	answer := new(dns.Msg)
@@ -326,6 +335,7 @@ func errorFunc(server string, w dns.ResponseWriter, r *dns.Msg, rc int) {
 }
 
 func errorAndMetricsFunc(server string, w dns.ResponseWriter, r *dns.Msg, rc int) {
+	customLog.Infof("func errorAndMetricsFunc")
 	state := request.Request{W: w, Req: r}
 
 	answer := new(dns.Msg)
