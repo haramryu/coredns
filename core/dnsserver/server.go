@@ -294,7 +294,7 @@ func (s *Server) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 
 	// Wildcard match, if we have found nothing try the root zone as a last resort.
 	if h, ok := s.zones["."]; ok && h.pluginChain != nil {
-		customLog.Infof("h, ok := s.zones["."]; ok && h.pluginChain != nil TRUE")
+		customLog.Infof("h, ok := s.zones b&& h.pluginChain != nil TRUE")
 		rcode, _ := h.pluginChain.ServeDNS(ctx, w, r)
 		if !plugin.ClientWrite(rcode) {
 			customLog.Infof("!plugin.ClientWrite(rcode) TRUE")
