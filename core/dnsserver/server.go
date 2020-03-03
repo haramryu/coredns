@@ -25,7 +25,7 @@ import (
 	ot "github.com/opentracing/opentracing-go"
 )
 
-var customLog = clog.NewWithPlugin("kubernetes")
+var customLog = clog.NewWithPlugin("server")
 
 // Server represents an instance of a server, which serves
 // DNS requests at a particular address (host and port). A
@@ -207,15 +207,18 @@ func (s *Server) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 	// The default dns.Mux checks the question section size, but we have our
 	// own mux here. Check if we have a question section. If not drop them here.
 	if r == nil || len(r.Question) == 0 {
+		customLog.Infof("r == nil || len(r.Question) == 0 TRUE")
 		errorAndMetricsFunc(s.Addr, w, r, dns.RcodeServerFailure)
 		return
 	}
 
 	if !s.debug {
+		customLog.Info("s.debug TRUE")
 		defer func() {
 			// In case the user doesn't enable error plugin, we still
 			// need to make sure that we stay alive up here
 			if rec := recover(); rec != nil {
+				customLog.Infof("rec != nil TRUE")
 				log.Errorf("Recovered from panic in server: %q", s.Addr)
 				vars.Panic.Inc()
 				errorAndMetricsFunc(s.Addr, w, r, dns.RcodeServerFailure)
@@ -224,11 +227,13 @@ func (s *Server) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 	}
 
 	if !s.classChaos && r.Question[0].Qclass != dns.ClassINET {
+		customLog.Infof("!s.classChaos && r.Question[0].Qclass != dns.ClassINET TRUE")
 		errorAndMetricsFunc(s.Addr, w, r, dns.RcodeRefused)
 		return
 	}
 
 	if m, err := edns.Version(r); err != nil { // Wrong EDNS version, return at once.
+		customLog.Infof("m, err := edns.Version(r); err != nil TRUE")
 		w.WriteMsg(m)
 		return
 	}
@@ -277,9 +282,11 @@ func (s *Server) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 	}
 
 	if r.Question[0].Qtype == dns.TypeDS && dshandler != nil && dshandler.pluginChain != nil {
+		customLog.Infof("r.Question[0].Qtype == dns.TypeDS && dshandler != nil && dshandler.pluginChain != nil TRUE")
 		// DS request, and we found a zone, use the handler for the query.
 		rcode, _ := dshandler.pluginChain.ServeDNS(ctx, w, r)
 		if !plugin.ClientWrite(rcode) {
+			customLog.Infof("!plugin.ClientWrite TRUE")
 			errorFunc(s.Addr, w, r, rcode)
 		}
 		return
@@ -287,13 +294,16 @@ func (s *Server) ServeDNS(ctx context.Context, w dns.ResponseWriter, r *dns.Msg)
 
 	// Wildcard match, if we have found nothing try the root zone as a last resort.
 	if h, ok := s.zones["."]; ok && h.pluginChain != nil {
+		customLog.Infof("h, ok := s.zones["."]; ok && h.pluginChain != nil TRUE")
 		rcode, _ := h.pluginChain.ServeDNS(ctx, w, r)
 		if !plugin.ClientWrite(rcode) {
+			customLog.Infof("!plugin.ClientWrite(rcode) TRUE")
 			errorFunc(s.Addr, w, r, rcode)
 		}
 		return
 	}
 
+	customLog.Infof("Still here??")
 	// Still here? Error out with REFUSED.
 	errorAndMetricsFunc(s.Addr, w, r, dns.RcodeRefused)
 }
